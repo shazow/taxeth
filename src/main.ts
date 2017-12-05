@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import web3 from './plugins/web3'
 
 Vue.config.productionTip = false
 
@@ -13,3 +14,5 @@ new Vue({
   template: '<App/>',
   components: { App }
 })
+
+Vue.use(web3);
