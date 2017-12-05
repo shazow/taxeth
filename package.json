@@ -1,7 +1,7 @@
 {
   "name": "taxeth",
   "version": "1.0.0",
-  "description": "A Vue.js project",
+  "description": "Compute crypto transaction values.",
   "author": "Andrey Petrov <andrey.petrov@shazow.net>",
   "private": true,
   "scripts": {
