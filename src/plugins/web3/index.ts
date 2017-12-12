@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import Web3 from 'web3'
 
 declare global {
@@ -5,6 +6,13 @@ declare global {
       web3: any,
       web3Loading: boolean,
     }
+}
+
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    $web3: any,
+  }
 }
 
 const defaultFallback = "http://localhost:8545/";
@@ -49,7 +57,7 @@ export default {
   install (Vue:any) {
     Object.defineProperty(Vue.prototype, '$web3', {
       get () {
-        return getWeb3(defaultFallback);
+        return Object.freeze(getWeb3(defaultFallback));
       }
     })
   }

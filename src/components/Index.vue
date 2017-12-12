@@ -1,5 +1,8 @@
 <template>
   <form v-on:submit.prevent="addAccount">
+    <div class="error" v-if="$store.state.error">
+      {{$store.state.error}}
+    </div>
     <h2>Accounts</h2>
     <ul v-for="(_, account) in $store.state.accounts">
       <li>{{account}}</li>
@@ -24,10 +27,22 @@ export default Vue.extend({
       this.newAccount = '';
     },
     addAccount(e:Event) {
-      if (!this.newAccount) return; // Ignore event
+      const account = this.newAccount;
+      if (!account) return; // Ignore event
       // TODO: Validate?
-      this.$store.commit('addAccount', this.newAccount);
+      this.$store.commit('addAccount', account);
       this.reset();
+
+      const vm = this;
+      window.web3.eth.filter({'address': account}, function(error:any, result:any) {
+        console.log("filering");
+        if (error) {
+          // TODO: Undo addAccount?
+          vm.$store.commit('error', JSON.stringify(error));
+          return;
+        }
+        console.log(result);
+      });
     }
   },
 })
