@@ -1,7 +1,7 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
@@ -9,12 +9,12 @@ export default new Vuex.Store({
     messages: [],
   },
   mutations: {
-    addAccount(state, account) {
+    addAccount (state, account) {
       if (state.accounts[account]) return;
       state.accounts[account] = [];
     },
-    reset(state) {
+    reset (state) {
       state.accounts = {};
     },
   },
-})
+});
