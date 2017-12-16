@@ -19,7 +19,7 @@
         <td class="address">{{tx.from}}</td>
         <td class="value">{{tx.value.toNumber().toPrecision(3)}}</td>
         <td class="kind">{{tx.kind}}</td>
-        <td class="value">${{$store.state.priceHistory[tx.kind]['USD'][tx.date]}}</td>
+        <td class="value">${{$store.getters.priceByDate(tx.kind, 'USD', tx.date)}}</td>
         <td class="kind">USD</td>
       </tr>
     </table>

@@ -26,6 +26,12 @@ export default new Vuex.Store({
     priceHistory: {},
     transactions: [],
   },
+  getters: {
+    priceByDate: (state) => (symbolFrom, symbolTo, date) => {
+      if (!state.priceHistory[symbolFrom] || !state.priceHistory[symbolFrom][symbolTo]) return;
+      return state.priceHistory[symbolFrom][symbolTo][date];
+    },
+  },
   mutations: {
     addAccount (state, address) {
       if (state.accounts[address]) return;
@@ -49,7 +55,7 @@ export default new Vuex.Store({
     addPriceHistory (state, {fromSymbol, toSymbol, history}) {
       state.priceHistory[fromSymbol] = state.priceHistory[fromSymbol] || {};
       state.priceHistory[fromSymbol][toSymbol] = state.priceHistory[fromSymbol][toSymbol] || {};
-      Object.assign(state.priceHistory[fromSymbol][toSymbol], history);
+      state.priceHistory[fromSymbol][toSymbol] = Object.assign({}, state.priceHistory[fromSymbol][toSymbol], history);
     },
     message (state, {kind, body}) {
       state.messages.push({
@@ -92,7 +98,7 @@ export default new Vuex.Store({
         for (let tx of data.result) {
           commit('addTransaction', {
             date: epochToDate(tx.timeStamp),
-            address: address,
+            to: tx.to,
             from: tx.from,
             value: weiToEth(tx.value),
             kind: symbol,
