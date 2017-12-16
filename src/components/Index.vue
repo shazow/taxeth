@@ -7,9 +7,22 @@
     <input type="text" v-model="newAccount" />
     <input type="submit" value="Add" v-on:click="addAccount" />
 
-    <ul v-for="tx in getTransactions($store.state.accounts)">
-      <li>{{tx}}</li>
-    </ul>
+    <table>
+      <thead>
+        <td class="date">Date</td>
+        <td class="address">From</td>
+        <td class="kind" colspan=2>Value</td>
+        <td class="kind" colspan=2>Conversion</td>
+      </thead>
+      <tr v-for="tx in $store.state.transactions">
+        <td class="date">{{tx.date}}</td>
+        <td class="address">{{tx.from}}</td>
+        <td class="value">{{tx.value.toNumber().toPrecision(3)}}</td>
+        <td class="kind">{{tx.kind}}</td>
+        <td class="value">${{$store.state.priceHistory[tx.kind]['USD'][tx.date]}}</td>
+        <td class="kind">USD</td>
+      </tr>
+    </table>
   </form>
 </template>
 
@@ -34,33 +47,22 @@ export default {
       });
       this.reset();
     },
-    getTransactions (accounts) {
-      const txns = [];
-      for (let account in accounts) {
-        for (let tx in account.transactions) {
-          txns.push(tx);
-        }
-      }
-      return txns;
-    },
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h1, h2 {
-  font-weight: normal;
+td {
+  padding: 0 0.2em;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+td.value {
+  text-align: right;
+  padding-right: 0;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+td.kind {
+  padding-right: 0.4em;
 }
-a {
-  color: #42b983;
+td.address {
+  color: rgba(0,0,125,0.4);
 }
 </style>
