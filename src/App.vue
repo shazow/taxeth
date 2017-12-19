@@ -19,6 +19,14 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  margin-top: 60px;
+  margin: 0.5em 1em;
+}
+
+h2 {
+  margin: 1em 0 0.5em 0;
+  line-height: 1em;
+}
+form {
+  margin-bottom: 2em;
 }
 </style>

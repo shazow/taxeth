@@ -1,17 +1,17 @@
 <template>
-  <div>
-    <h1>Taxeth</h1>
-    <Accounts></Accounts>
-    <Transactions></Transactions>
-  </div>
+  <form v-on:submit.prevent="addAccount">
+    <h2>Accounts</h2>
+    <ul v-for="(_, account) in $store.state.accounts">
+      <li>{{account}}</li>
+    </ul>
+    <input type="text" v-model="newAccount" class="address" placeholder="Ethereum Address" />
+    <input type="submit" value="Add" v-on:click="addAccount" />
+  </form>
 </template>
 
 <script>
-import Accounts from './Accounts';
-import Transactions from './Transactions';
-
 export default {
-  name: 'Index',
+  name: 'Accounts',
   data () {
     return {
       newAccount: '',
@@ -31,25 +31,11 @@ export default {
       this.reset();
     },
   },
-  components: {
-    Accounts,
-    Transactions,
-  },
 };
 </script>
 
 <style scoped>
-td {
-  padding: 0 0.2em;
-}
-td.value {
-  text-align: right;
-  padding-right: 0;
-}
-td.kind {
-  padding-right: 0.4em;
-}
-td.address {
-  color: rgba(0,0,125,0.4);
+input.address {
+  width: 32em;
 }
 </style>

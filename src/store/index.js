@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
 
@@ -33,10 +34,11 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    addAccount (state, address) {
+    addAccount (state, address, symbol) {
       if (state.accounts[address]) return;
       state.accounts[address] = {
         loading: true,
+        symbol,
       };
     },
     addTransaction (state, {date, from, to, value, kind}) {
@@ -75,15 +77,13 @@ export default new Vuex.Store({
 
       const fromSymbol = 'ETH';
       const toSymbol = 'USD';
+      const pricePromise = dispatch('loadPriceHistory', {fromSymbol, toSymbol});
       const txPromise = dispatch('loadTransactions', {symbol: fromSymbol, address});
       if (state.priceHistory[fromSymbol] && state.priceHistory[fromSymbol][toSymbol]) {
         // Price history already loaded
         return txPromise;
       }
-      return Promise.all([
-        txPromise,
-        dispatch('loadPriceHistory', {fromSymbol, toSymbol}),
-      ]);
+      return Promise.all([txPromise, pricePromise]);
     },
     loadTransactions ({ commit }, {symbol, address}) {
       if (symbol !== 'ETH') {
@@ -92,10 +92,8 @@ export default new Vuex.Store({
       }
 
       const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&sort=asc`;
-      return Vue.http.get(url).then(response => {
-        return response.json();
-      }).then(data => {
-        for (let tx of data.result) {
+      return axios.get(url).then(response => {
+        for (let tx of response.data.result) {
           commit('addTransaction', {
             date: epochToDate(tx.timeStamp),
             to: tx.to,
@@ -114,12 +112,10 @@ export default new Vuex.Store({
       // TODO: Assert symbol whitelist
       // XXX: Expand from 365 days
       const url = `https://min-api.cryptocompare.com/data/histoday?fsym=${fromSymbol}&tsym=${toSymbol}&limit=365`;
-      return Vue.http.get(url).then(response => {
-        return response.json();
-      }).then(data => {
-        for (let row of data['Data']) {
+      return axios.get(url).then(response => {
+        for (let row of response.data['Data']) {
           const d = epochToDate(row.time);
-          history[d] = row.close;
+          history[d] = new BN(row.close);
         }
         commit('addPriceHistory', {fromSymbol, toSymbol, history});
       });
