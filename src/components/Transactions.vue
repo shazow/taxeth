@@ -41,6 +41,7 @@ export default {
       return wei.mul(ETH_DECIMALS).div(WEI_IN_ETH).toNumber() / ETH_DECIMALS;
     },
     toCurrency (n) {
+      if (n === undefined) return n;
       return n.toLocaleString('en-US', { style: 'currency', currency: this.symbolTo });
     },
   },
