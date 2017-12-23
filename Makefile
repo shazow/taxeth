@@ -7,6 +7,9 @@ test: deps
 run: deps
 	npm run dev
 
+push:
+	git subtree push --prefix dist origin gh-pages
+
 deps: node_modules/
 
 node_modules/: package.json
