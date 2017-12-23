@@ -28,7 +28,6 @@ axios.interceptors.request.use(request => {
   const hit = cacheStorage.getItem(key);
   if (!hit) return request;
 
-  console.log('loading from cache ' + key);
   request.adapter = () => {
     return Promise.resolve({
       data: JSON.parse(hit),
@@ -46,8 +45,8 @@ axios.interceptors.request.use(request => {
 axios.interceptors.response.use(response => {
   if (response.status > 200 || response.config.method !== 'get') return response;
 
+  // TODO: Avoid re-caching when it's already cached?
   const key = cacheKey(response.config);
-  console.log('caching ' + key);
   cacheStorage.setItem(key, JSON.stringify(response.data));
   return response;
 }, error => Promise.reject(error));

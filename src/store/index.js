@@ -4,15 +4,7 @@ import Vuex from 'vuex';
 
 import BN from 'bn.js';
 
-// TODO: Add fetch caching for localstorage? https://github.com/pagekit/vue-resource/issues/252
-
 Vue.use(Vuex);
-
-const WEI_IN_ETH = new BN('1000000000000000000');
-
-function weiToEth (wei) {
-  return (new BN(wei)).div(WEI_IN_ETH);
-};
 
 function epochToDate (epoch) {
   const d = new Date(0);
@@ -25,12 +17,31 @@ export default new Vuex.Store({
     messages: [],
     accounts: {},
     priceHistory: {},
-    transactions: [],
+    txIncoming: [],
+    txOutgoing: [],
   },
   getters: {
-    priceByDate: (state) => (symbolFrom, symbolTo, date) => {
-      if (!state.priceHistory[symbolFrom] || !state.priceHistory[symbolFrom][symbolTo]) return;
-      return state.priceHistory[symbolFrom][symbolTo][date];
+    priceHistory: (state) => (symbolFrom, symbolTo) => {
+      return state.priceHistory[symbolFrom] && state.priceHistory[symbolFrom][symbolTo];
+    },
+    priceByDate: (state, getters) => (symbolFrom, symbolTo, date) => {
+      const history = getters.priceHistory(symbolFrom, symbolTo);
+      return history && history[date];
+    },
+    transactionPrice: (state, getters) => (tx, symbolTo) => {
+      const history = getters.priceHistory(tx.kind, symbolTo);
+      return history && history[tx.date];
+    },
+    totalValue: (state, getters) => (symbolTo) => {
+      let total = new BN(0);
+      const one = new BN(1);
+      for (let tx of state.txIncoming) {
+        if (!tx.value) continue;
+        const price = symbolTo === tx.kind ? one : getters.transactionPrice(tx, symbolTo);
+        if (!price) continue;
+        total.iadd(tx.value.mul(price));
+      }
+      return total;
     },
   },
   mutations: {
@@ -41,9 +52,12 @@ export default new Vuex.Store({
         symbol,
       };
     },
-    addTransaction (state, {date, from, to, value, kind}) {
-      if (value.isZero()) return; // Skip zero-value for now
-      state.transactions.push({
+    addTransaction (state, {date, from, to, value, kind, isIncoming}) {
+      if (value.isZero()) {
+        return; // Skip zero-value for now
+      }
+      const target = isIncoming ? state.txIncoming : state.txOutgoing;
+      target.push({
         date,
         from,
         to,
@@ -94,12 +108,16 @@ export default new Vuex.Store({
       const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&sort=asc`;
       return axios.get(url).then(response => {
         for (let tx of response.data.result) {
+          if (tx.isError !== '0') {
+            continue;
+          }
           commit('addTransaction', {
             date: epochToDate(tx.timeStamp),
             to: tx.to,
             from: tx.from,
-            value: weiToEth(tx.value),
+            value: new BN(tx.value),
             kind: symbol,
+            isIncoming: tx.to === address,
           });
         }
         commit('completeAccount', address);
