@@ -5,20 +5,20 @@
       <td>From</td>
       <td colspan=2>
         Value
-        ({{weiToEth($store.getters.totalValue('ETH'))}} ETH)
+        ({{weiToEth($store.getters.totalValue('ETH')).toFixed(3).toLocaleString()}} ETH)
       </td>
       <td colspan=2>
         Conversion
-        (${{weiToEth($store.getters.totalValue(symbolTo)).toFixed(2)}} {{symbolTo}})
+        ({{toCurrency(weiToEth($store.getters.totalValue(symbolTo)))}})
       </td>
     </thead>
     <tbody>
       <tr v-for="tx in $store.state.txIncoming">
         <td class="date">{{tx.date}}</td>
         <td class="address">{{tx.from}}</td>
-        <td class="value">{{weiToEth(tx.value)}}</td>
+        <td class="value">{{weiToEth(tx.value).toFixed(3).toLocaleString()}}</td>
         <td class="kind">{{tx.kind}}</td>
-        <td class="value">${{$store.getters.transactionPrice(tx, symbolTo).toNumber().toFixed(2)}}</td>
+        <td class="value">${{toCurrency($store.getters.transactionPrice(tx, symbolTo))}}</td>
         <td class="kind">{{symbolTo}}</td>
       </tr>
     </tbody>
@@ -26,21 +26,22 @@
 </template>
 
 <script>
-import BN from 'bn.js';
-
-const WEI_IN_ETH = new BN('1000000000000000000');
-const ETH_DECIMALS = new BN('5');
+const WEI_IN_ETH = '1000000000000000000';
+const ETH_DECIMALS = 5;
 
 export default {
   name: 'Transactions',
   data () {
     return {
-      symbolTo: 'USD',
+      symbolTo: 'CAD',
     };
   },
   methods: {
     weiToEth (wei) {
-      return wei.mul(ETH_DECIMALS).div(WEI_IN_ETH).toNumber() / ETH_DECIMALS.toNumber();
+      return wei.mul(ETH_DECIMALS).div(WEI_IN_ETH).toNumber() / ETH_DECIMALS;
+    },
+    toCurrency (n) {
+      return n.toLocaleString('en-US', { style: 'currency', currency: this.symbolTo });
     },
   },
 };

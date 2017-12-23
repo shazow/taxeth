@@ -2,7 +2,7 @@ import axios from 'axios';
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import BN from 'bn.js';
+import BigNumber from 'bignumber.js';
 
 Vue.use(Vuex);
 
@@ -33,13 +33,13 @@ export default new Vuex.Store({
       return history && history[tx.date];
     },
     totalValue: (state, getters) => (symbolTo) => {
-      let total = new BN(0);
-      const one = new BN(1);
+      let total = new BigNumber(0);
+      const one = new BigNumber(1);
       for (let tx of state.txIncoming) {
         if (!tx.value) continue;
         const price = symbolTo === tx.kind ? one : getters.transactionPrice(tx, symbolTo);
         if (!price) continue;
-        total.iadd(tx.value.mul(price));
+        total = total.add(tx.value.mul(price));
       }
       return total;
     },
@@ -90,7 +90,7 @@ export default new Vuex.Store({
       commit('addAccount', address);
 
       const fromSymbol = 'ETH';
-      const toSymbol = 'USD';
+      const toSymbol = 'CAD';
       const pricePromise = dispatch('loadPriceHistory', {fromSymbol, toSymbol});
       const txPromise = dispatch('loadTransactions', {symbol: fromSymbol, address});
       if (state.priceHistory[fromSymbol] && state.priceHistory[fromSymbol][toSymbol]) {
@@ -115,7 +115,7 @@ export default new Vuex.Store({
             date: epochToDate(tx.timeStamp),
             to: tx.to,
             from: tx.from,
-            value: new BN(tx.value),
+            value: new BigNumber(tx.value),
             kind: symbol,
             isIncoming: tx.to === address,
           });
@@ -132,8 +132,8 @@ export default new Vuex.Store({
       const url = `https://min-api.cryptocompare.com/data/histoday?fsym=${fromSymbol}&tsym=${toSymbol}&limit=365`;
       return axios.get(url).then(response => {
         for (let row of response.data['Data']) {
-          const d = epochToDate(row.time);
-          history[d] = new BN(row.close);
+          const d = epochToDate(row['time']);
+          history[d] = new BigNumber(row['close']);
         }
         commit('addPriceHistory', {fromSymbol, toSymbol, history});
       });
