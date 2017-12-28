@@ -9,12 +9,10 @@
         <td>Date</td>
         <td class="address">From</td>
         <td class="address">To</td>
-        <td colspan=2>
-          Value
-        </td>
-        <td colspan=2>
-          Conversion
-        </td>
+        <td class="value">Value</td>
+        <td></td>
+        <td class="value">Conversion</td>
+        <td></td>
       </tr>
     </thead>
     <tbody>
@@ -59,12 +57,10 @@ table {
    table-layout: fixed;
    border-collapse: collapse;
    width: 100%;
+   min-width: 40em;
 }
 caption {
   margin: 1em 0;
-}
-thead {
-  border-bottom: 1px solid #555;
 }
 thead td {
   font-weight: bold;
