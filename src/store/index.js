@@ -17,8 +17,7 @@ export default new Vuex.Store({
     messages: [],
     accounts: {},
     priceHistory: {},
-    txIncoming: [],
-    txOutgoing: [],
+    transactions: [],
   },
   getters: {
     priceHistory: (state) => (symbolFrom, symbolTo) => {
@@ -32,16 +31,22 @@ export default new Vuex.Store({
       const history = getters.priceHistory(tx.kind, symbolTo);
       return history && history[tx.date];
     },
-    totalValue: (state, getters) => (symbolTo) => {
+    valueIncoming: (state, getters) => (symbolTo) => {
       let total = new BigNumber(0);
       const one = new BigNumber(1);
-      for (let tx of state.txIncoming) {
+      for (let tx of getters.txIncoming) {
         if (!tx.value) continue;
         const price = symbolTo === tx.kind ? one : getters.transactionPrice(tx, symbolTo);
         if (!price) continue;
         total = total.add(tx.value.mul(price));
       }
       return total;
+    },
+    txIncoming: state => {
+      return state.transactions.filter(tx => state.accounts[tx.to]);
+    },
+    txOutgoing: state => {
+      return state.transactions.filter(tx => state.accounts[tx.from]);
     },
   },
   mutations: {
@@ -52,12 +57,11 @@ export default new Vuex.Store({
         symbol,
       };
     },
-    addTransaction (state, {date, from, to, value, kind, isIncoming}) {
+    addTransaction (state, {date, from, to, value, kind}) {
       if (value.isZero()) {
         return; // Skip zero-value for now
       }
-      const target = isIncoming ? state.txIncoming : state.txOutgoing;
-      target.push({
+      state.transactions.push({
         date,
         from,
         to,
@@ -105,7 +109,7 @@ export default new Vuex.Store({
         return Promise.reject(Error('invalid symbol: ' + symbol));
       }
 
-      const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&sort=asc`;
+      const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&sort=asc&apiKey=${process.env.ETHERSCAN_KEY}`;
       return axios.get(url).then(response => {
         for (let tx of response.data.result) {
           if (tx.isError !== '0') {
@@ -117,7 +121,6 @@ export default new Vuex.Store({
             from: tx.from,
             value: new BigNumber(tx.value),
             kind: symbol,
-            isIncoming: tx.to === address,
           });
         }
         commit('completeAccount', address);

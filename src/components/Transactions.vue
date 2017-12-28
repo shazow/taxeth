@@ -1,21 +1,27 @@
 <template>
-  <table v-if="$store.state.txIncoming.length > 0">
+  <table v-if="$store.getters.txIncoming.length > 0">
+    <caption>
+      Loaded <strong>{{weiToEth($store.getters.valueIncoming('ETH')).toFixed(3).toLocaleString()}} ETH</strong> inbound,
+      worth <strong>{{toCurrency(weiToEth($store.getters.valueIncoming(symbolTo)))}}</strong> at the time of transacting.
+    </caption>
     <thead>
-      <td>Date</td>
-      <td>From</td>
-      <td colspan=2>
-        Value
-        ({{weiToEth($store.getters.totalValue('ETH')).toFixed(3).toLocaleString()}} ETH)
-      </td>
-      <td colspan=2>
-        Conversion
-        ({{toCurrency(weiToEth($store.getters.totalValue(symbolTo)))}})
-      </td>
+      <tr>
+        <td>Date</td>
+        <td class="address">From</td>
+        <td class="address">To</td>
+        <td colspan=2>
+          Value
+        </td>
+        <td colspan=2>
+          Conversion
+        </td>
+      </tr>
     </thead>
     <tbody>
-      <tr v-for="tx in $store.state.txIncoming">
+      <tr v-for="tx in $store.state.transactions">
         <td class="date">{{tx.date}}</td>
         <td class="address">{{tx.from}}</td>
+        <td class="address">{{tx.to}}</td>
         <td class="value">{{weiToEth(tx.value).toFixed(3).toLocaleString()}}</td>
         <td class="kind">{{tx.kind}}</td>
         <td class="value">${{toCurrency($store.getters.transactionPrice(tx, symbolTo))}}</td>
@@ -49,11 +55,25 @@ export default {
 </script>
 
 <style scoped>
+table {
+   table-layout: fixed;
+   border-collapse: collapse;
+   width: 100%;
+}
+caption {
+  margin: 1em 0;
+}
 thead {
+  border-bottom: 1px solid #555;
+}
+thead td {
   font-weight: bold;
+  color: #333;
 }
 td {
   padding: 0 0.2em;
+  white-space: nowrap;
+  overflow:hidden;
 }
 td.value {
   text-align: right;
@@ -63,6 +83,8 @@ td.kind {
   padding-right: 0.4em;
 }
 td.address {
-  color: rgba(0,0,125,0.4);
+  text-overflow: ellipsis;
+  width: 6em;
+  overflow: hidden;
 }
 </style>
