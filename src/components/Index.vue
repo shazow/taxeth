@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h1>Taxeth</h1>
     <Accounts></Accounts>
     <Transactions></Transactions>
   </div>

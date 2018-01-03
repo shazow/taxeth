@@ -1,16 +1,9 @@
 <template>
   <div id="app">
-    <div class="warning">
-      <h3>WARNING</h3>
-      <p>
-        Do not use this for anything serious.
-        It's a personal tool that is made to cover my own cases and has not been completed for general consumption.
-      </p>
-    </div>
     <ul class="messages" v-if="$store.state.messages" v-for="message in $store.state.messages">
       <li :class="message.kind">{{ message.body }}</li>
     </ul>
-    <router-view/>
+    <router-view></router-view>
   </div>
 </template>
 

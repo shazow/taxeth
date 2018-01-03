@@ -14,8 +14,7 @@ new Vue({
   el: '#app',
   router,
   store,
-  template: '<App/>',
-  components: { App },
+  render: h => h(App),
 });
 
 const cacheKey = (request) => { return `CACHE::${request.url}`; };
