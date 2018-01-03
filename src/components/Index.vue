@@ -11,6 +11,7 @@ import Transactions from './Transactions';
 
 export default {
   name: 'Index',
+  props: ['initAddresses'],
   data () {
     return {
       newAccount: '',
@@ -33,6 +34,14 @@ export default {
   components: {
     Accounts,
     Transactions,
+  },
+  mounted () {
+    if (!this.initAddresses || this.initAddresses.length === 0) return;
+    for (let address of this.initAddresses) {
+      this.$store.dispatch('saveAccount', address).catch(err => {
+        this.$store.commit('message', {kind: 'error', body: String(err)});
+      });
+    }
   },
 };
 </script>

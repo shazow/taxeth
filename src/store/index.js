@@ -94,13 +94,15 @@ export default new Vuex.Store({
   },
   actions: {
     saveAccount ({ commit, dispatch, state }, address) {
-      if (state.accounts[address] !== undefined) return Promise.reject(Error('account already saved: ' + address));
-      commit('addAccount', address);
+      if (!address || !address.startsWith('0x')) return Promise.reject(Error('invalid ETH address: ' + address));
+      const addressKey = address.toLowerCase();
+      if (state.accounts[addressKey] !== undefined) return Promise.reject(Error('account already saved: ' + address));
+      commit('addAccount', addressKey);
 
       const fromSymbol = 'ETH';
       const toSymbol = 'CAD';
       const pricePromise = dispatch('loadPriceHistory', {fromSymbol, toSymbol});
-      const txPromise = dispatch('loadTransactions', {symbol: fromSymbol, address});
+      const txPromise = dispatch('loadTransactions', {symbol: fromSymbol, address: addressKey});
       if (state.priceHistory[fromSymbol] && state.priceHistory[fromSymbol][toSymbol]) {
         // Price history already loaded
         return txPromise;

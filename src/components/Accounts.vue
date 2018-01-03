@@ -25,10 +25,13 @@ export default {
       const account = this.newAccount;
       if (!account) return; // Ignore event
       // TODO: Validate?
-      this.$store.dispatch('saveAccount', account).catch(err => {
+      this.$store.dispatch('saveAccount', account).then(_ => {
+      }).catch(err => {
         this.$store.commit('message', {kind: 'error', body: String(err)});
       });
       this.reset();
+
+      this.$router.push({path: '/', query: {a: Object.keys(this.$store.state.accounts)}});
     },
   },
 };
