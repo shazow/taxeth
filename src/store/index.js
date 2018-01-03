@@ -43,19 +43,20 @@ export default new Vuex.Store({
       return total;
     },
     txIncoming: state => {
-      return state.transactions.filter(tx => state.accounts[tx.to]);
+      return state.transactions.filter(tx => (tx.to in state.accounts));
     },
     txOutgoing: state => {
-      return state.transactions.filter(tx => state.accounts[tx.from]);
+      return state.transactions.filter(tx => (tx.from in state.accounts));
     },
   },
   mutations: {
     addAccount (state, address, symbol) {
-      if (state.accounts[address]) return;
-      state.accounts[address] = {
+      const addressKey = address.toLowerCase();
+      if (state.accounts[addressKey]) return;
+      Vue.set(state.accounts, addressKey, {
         loading: true,
         symbol,
-      };
+      });
     },
     addTransaction (state, {date, from, to, value, kind}) {
       if (value.isZero()) {
@@ -70,7 +71,10 @@ export default new Vuex.Store({
       });
     },
     completeAccount (state, address) {
-      state.accounts[address].loading = false;
+      const addressKey = address.toLowerCase();
+      const a = state.accounts[addressKey];
+      a.loading = false;
+      Vue.set(state.accounts, addressKey, a);
     },
     addPriceHistory (state, {fromSymbol, toSymbol, history}) {
       state.priceHistory[fromSymbol] = state.priceHistory[fromSymbol] || {};

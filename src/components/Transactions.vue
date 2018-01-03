@@ -1,8 +1,8 @@
 <template>
-  <table v-if="$store.getters.txIncoming.length > 0">
+  <table v-if="$store.state.transactions.length > 0">
     <caption>
-      Loaded <strong>{{weiToEth($store.getters.valueIncoming('ETH')).toFixed(3).toLocaleString()}} ETH</strong> inbound,
-      worth <strong>{{toCurrency(weiToEth($store.getters.valueIncoming(symbolTo)))}}</strong> at the time of transacting.
+      Loaded <strong>{{totalEth}} ETH</strong> inbound across {{count}} transactions,
+      worth <strong>{{totalFiat}}</strong> at the time of transacting.
     </caption>
     <thead>
       <tr>
@@ -39,6 +39,17 @@ export default {
     return {
       symbolTo: 'CAD',
     };
+  },
+  computed: {
+    totalEth () {
+      return this.weiToEth(this.$store.getters.valueIncoming('ETH')).toFixed(3).toLocaleString();
+    },
+    totalFiat () {
+      return this.toCurrency(this.weiToEth(this.$store.getters.valueIncoming(this.symbolTo)));
+    },
+    count () {
+      return this.$store.getters.txIncoming.length;
+    },
   },
   methods: {
     weiToEth (wei) {
