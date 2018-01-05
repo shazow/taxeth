@@ -9,6 +9,8 @@
 import Accounts from './Accounts';
 import Transactions from './Transactions';
 
+import TaxethError from '@/errors.js';
+
 export default {
   name: 'Index',
   props: ['initAddresses'],
@@ -25,7 +27,7 @@ export default {
       const account = this.newAccount;
       if (!account) return; // Ignore event
       // TODO: Validate?
-      this.$store.dispatch('saveAccount', account).catch(err => {
+      this.$store.dispatch('saveAccount', account).catch(TaxethError, (err) => {
         this.$store.commit('message', {kind: 'error', body: String(err)});
       });
       this.reset();
@@ -38,7 +40,7 @@ export default {
   mounted () {
     if (!this.initAddresses || this.initAddresses.length === 0) return;
     for (let address of this.initAddresses) {
-      this.$store.dispatch('saveAccount', address).catch(err => {
+      this.$store.dispatch('saveAccount', address).catch(TaxethError, (err) => {
         this.$store.commit('message', {kind: 'error', body: String(err)});
       });
     }

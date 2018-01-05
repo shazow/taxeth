@@ -10,6 +10,8 @@
 </template>
 
 <script>
+import TaxethError from '@/errors.js';
+
 export default {
   name: 'Accounts',
   data () {
@@ -26,7 +28,7 @@ export default {
       if (!account) return; // Ignore event
       // TODO: Validate?
       this.$store.dispatch('saveAccount', account).then(_ => {
-      }).catch(err => {
+      }).catch(TaxethError, err => {
         this.$store.commit('message', {kind: 'error', body: String(err)});
       });
       this.reset();

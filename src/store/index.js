@@ -4,6 +4,8 @@ import Vuex from 'vuex';
 
 import BigNumber from 'bignumber.js';
 
+import TaxethError from '@/errors.js';
+
 Vue.use(Vuex);
 
 function epochToDate (epoch) {
@@ -94,9 +96,9 @@ export default new Vuex.Store({
   },
   actions: {
     saveAccount ({ commit, dispatch, state }, address) {
-      if (!address || !address.startsWith('0x')) return Promise.reject(Error('invalid ETH address: ' + address));
+      if (!address || !address.startsWith('0x')) return Promise.reject(TaxethError('invalid ETH address: ' + address));
       const addressKey = address.toLowerCase();
-      if (state.accounts[addressKey] !== undefined) return Promise.reject(Error('account already saved: ' + address));
+      if (state.accounts[addressKey] !== undefined) return Promise.reject(TaxethError('account already saved: ' + address));
       commit('addAccount', addressKey);
 
       const fromSymbol = 'ETH';
@@ -112,11 +114,14 @@ export default new Vuex.Store({
     loadTransactions ({ commit }, {symbol, address}) {
       if (symbol !== 'ETH') {
         // TODO: Expand from ETH
-        return Promise.reject(Error('invalid symbol: ' + symbol));
+        return Promise.reject(TaxethError('invalid symbol: ' + symbol));
       }
 
       const url = `https://api.etherscan.io/api?module=account&action=txlist&address=${address}&sort=asc&apiKey=${process.env.ETHERSCAN_KEY}`;
       return axios.get(url).then(response => {
+        if (response.data.status !== '1') {
+          return Promise.reject(TaxethError('API request failed: ' + response.data.message));
+        }
         for (let tx of response.data.result) {
           if (tx.isError !== '0') {
             continue;

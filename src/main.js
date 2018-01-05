@@ -4,6 +4,7 @@ import Vue from 'vue';
 import App from './App';
 import router from './router';
 import store from './store';
+import TaxethError from './errors.js';
 
 import axios from 'axios';
 
@@ -39,7 +40,7 @@ axios.interceptors.request.use(request => {
   };
 
   return request;
-}, error => Promise.reject(error));
+}, error => Promise.reject(TaxethError(error)));
 
 axios.interceptors.response.use(response => {
   if (response.status > 200 || response.config.method !== 'get') return response;
@@ -48,4 +49,4 @@ axios.interceptors.response.use(response => {
   const key = cacheKey(response.config);
   cacheStorage.setItem(key, JSON.stringify(response.data));
   return response;
-}, error => Promise.reject(error));
+}, error => Promise.reject(TaxethError(error)));
