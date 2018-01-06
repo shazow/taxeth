@@ -11,8 +11,6 @@
         <td class="address">To</td>
         <td class="value">Amount</td>
         <td></td>
-        <td class="value">Fiat</td>
-        <td></td>
         <td class="value">Exchange</td>
         <td></td>
       </tr>
@@ -24,8 +22,6 @@
         <td class="address">{{tx.to}}</td>
         <td class="value">{{weiToEth(tx.value).toFixed(3).toLocaleString()}}</td>
         <td class="kind">{{tx.kind}}</td>
-        <td class="value">${{weiToEth(tx.value.mul($store.getters.transactionPrice(tx, symbolTo)))}}</td>
-        <td class="kind">{{symbolTo}}</td>
         <td class="value">${{toCurrency($store.getters.transactionPrice(tx, symbolTo))}}</td>
         <td class="kind">{{tx.kind}}{{symbolTo}}</td>
       </tr>

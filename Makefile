@@ -1,5 +1,7 @@
 build: deps
+	rm -rf dist/
 	npm run build
+	git add -f dist/
 
 test: deps
 	npm run tests
