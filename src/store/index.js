@@ -109,7 +109,7 @@ export default new Vuex.Store({
         // Price history already loaded
         return txPromise;
       }
-      return Promise.all([txPromise, pricePromise]);
+      return Promise.all([pricePromise, txPromise]);
     },
     loadTransactions ({ commit }, {symbol, address}) {
       if (symbol !== 'ETH') {

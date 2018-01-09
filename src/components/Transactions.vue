@@ -2,7 +2,7 @@
   <table v-if="$store.state.transactions.length > 0">
     <caption>
       Loaded <strong>{{totalEth}} ETH</strong> inbound across {{count}} transactions,
-      worth <strong>{{totalFiat}}</strong> at the time of transacting.
+      worth <strong>${{totalFiat}} {{symbolTo}}</strong> at the time of transacting.
     </caption>
     <thead>
       <tr>
@@ -11,7 +11,9 @@
         <td class="address">To</td>
         <td class="value">Amount</td>
         <td></td>
-        <td class="value">Exchange</td>
+        <td class="value">Converted</td>
+        <td></td>
+        <td class="value">Rate</td>
         <td></td>
       </tr>
     </thead>
@@ -20,9 +22,11 @@
         <td class="date">{{tx.date}}</td>
         <td class="address">{{tx.from}}</td>
         <td class="address">{{tx.to}}</td>
-        <td class="value">{{weiToEth(tx.value).toFixed(3).toLocaleString()}}</td>
+        <td class="value">{{txAmount(tx)}}</td>
         <td class="kind">{{tx.kind}}</td>
-        <td class="value">${{toCurrency($store.getters.transactionPrice(tx, symbolTo))}}</td>
+        <td class="value">{{txConverted(tx, symbolTo), $store.state.priceHistory}}</td>
+        <td class="kind">{{symbolTo}}</td>
+        <td class="value">{{txExchange(tx, symbolTo, $store.state.priceHistory)}}</td>
         <td class="kind">{{tx.kind}}{{symbolTo}}</td>
       </tr>
     </tbody>
@@ -52,12 +56,23 @@ export default {
     },
   },
   methods: {
+    txAmount (tx) {
+      return this.weiToEth(tx.value).toFixed(3).toLocaleString();
+    },
+    txExchange (tx, symbolTo) {
+      return this.toCurrency(this.$store.getters.transactionPrice(tx, symbolTo));
+    },
+    txConverted (tx, symbolTo) {
+      const price = this.$store.getters.transactionPrice(tx, symbolTo);
+      if (!price) return;
+      return this.toCurrency(this.weiToEth(tx.value.mul(price)), symbolTo);
+    },
     weiToEth (wei) {
       return wei.mul(ETH_DECIMALS).div(WEI_IN_ETH).toNumber() / ETH_DECIMALS;
     },
     toCurrency (n) {
       if (n === undefined) return n;
-      return n.toLocaleString('en-US', { style: 'currency', currency: this.symbolTo });
+      return n.toLocaleString();
     },
   },
 };
